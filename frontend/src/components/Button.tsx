@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, Pressable } from 'react-native';
+import { Text, StyleSheet, Pressable, TextInputProps } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
-export default function Button() {
+type InputProps = TextInputProps & {
+  left: string;
+  right: string;
+  left1: string;
+  right1: string;
+  text: String;
+};
+
+export default function Button({ left, right, text,left1,right1 }: InputProps) {
   const [isPressed, setIsPressed] = useState(false);
 
   return (
@@ -12,16 +20,12 @@ export default function Button() {
       style={styles.buttonContainer}
     >
       <LinearGradient
-        colors={
-          isPressed
-            ? ['#a129d3', '#136be3']
-            : ['#b145f4', '#288df8']
-        }
+        colors={isPressed ? [left,right] : [left1, right1]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.gradient}
       >
-        <Text style={styles.text}>Sign In</Text>
+        <Text style={styles.text}>{text}</Text>
       </LinearGradient>
     </Pressable>
   );
@@ -31,7 +35,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     borderRadius: 12,
     overflow: 'hidden',
-    width:'90%'
+    width: '90%',
   },
   gradient: {
     paddingVertical: 14,
