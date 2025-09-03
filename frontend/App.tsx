@@ -1,11 +1,14 @@
 import { NewAppScreen } from '@react-native/new-app-screen';
 import Login from './src/screens/Login';
-import Input from './src/components/Input';
+import Signup from './src/screens/Signup';
+import Home from './src/screens/Home';
 
 function App() {
 
   return (
-    <Login />
+    // <Login />
+    // <Signup />
+    <Home />
   );
 }
 
