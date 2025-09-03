@@ -36,7 +36,6 @@ function Login() {
             label="Email"
             icon={<Mail size={20} color="#6B7280" />}
           />
-
           <Input
             placeholder="Enter your password"
             label="Password"
