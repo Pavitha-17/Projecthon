@@ -12,10 +12,11 @@ import {
   Home,
   Plus,
   Search,
-  UserCircle,
   LogOut,
-  Settings
+  Settings,
+  Clock,
 } from 'lucide-react-native';
+import ChatHistory from '../components/ChatHistory';
 
 const { width } = Dimensions.get('window');
 
@@ -25,6 +26,7 @@ const SIDEBAR_COLLAPSED = 60;
 function SideBar() {
   const [isOpen, setIsOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(SIDEBAR_COLLAPSED)).current;
+  const [active, setActive] = useState(0);
 
   const toggleSidebar = () => {
     Animated.timing(slideAnim, {
@@ -35,6 +37,9 @@ function SideBar() {
   };
   const [isPressed, setIsPressed] = useState(false);
   const [isAddpressed, setIsAddPressed] = useState(false);
+  const dummyData = [{chat:'About me',recentMessage:'Your are Great and Amazing coder....'}
+    ,{chat:'About Projecthon',recentMessage:'Projecthon was an amazing event....'}
+  ]
   return (
     <Animated.View style={[styles.container, { width: slideAnim }]}>
       <View
@@ -86,8 +91,19 @@ function SideBar() {
                 width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
               },
             ]}
+            onPress={()=>setActive(0)}
           >
-            <View style={styles.HomeIcon}>
+            <View
+              style={[
+                styles.HomeIcon,
+                {
+                  borderWidth: 1,
+                  borderColor: active === 0 ? 'black' : 'lightgrey',
+                  paddingVertical: 10,
+                  borderRadius: 15,
+                },
+              ]}
+            >
               <Home color={'black'} size={20} strokeWidth={2} />
               {isOpen && <Text style={{ color: 'black' }}>Home</Text>}
             </View>
@@ -121,14 +137,16 @@ function SideBar() {
                 width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
               },
             ]}
+            onPress={()=>setActive(1)}
           >
             <View
               style={[
                 styles.HomeIcon,
                 {
                   borderWidth: 1,
-                  borderColor: 'lightgrey',
+                  borderColor: active === 1?'black':'lightgrey',
                   paddingVertical: 10,
+                  borderRadius:15,
                 },
               ]}
             >
@@ -149,6 +167,32 @@ function SideBar() {
             marginLeft: isOpen ? 2 : 0,
           }}
         />
+        <View style={{ alignItems: 'center', gap: 10, paddingTop: 10 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 10,
+              width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
+              paddingLeft: 10,
+            }}
+          >
+            <Clock size={20} strokeWidth={1} color={'grey'} />
+            {isOpen && <Text>Recent Chats</Text>}
+          </View>
+          {dummyData.map((obj,index)=>{
+            return (<ChatHistory
+            isOpen={isOpen}
+            SIDEBAR_COLLAPSED={SIDEBAR_COLLAPSED}
+            SIDEBAR_EXPANDED={SIDEBAR_EXPANDED}
+            chat={obj.chat}
+            recentMessage={obj.recentMessage}
+            isClicked={active}
+            setIsClicked={setActive}
+            index={index}
+          />)
+          })}
+        </View>
       </View>
       <View
         style={{
@@ -168,55 +212,66 @@ function SideBar() {
           position: 'absolute',
           left: 5,
           right: 5,
-          bottom:50,
-          gap:20,
+          bottom: 50,
+          gap: 20,
           // alignItems:'center',
         }}
       >
-        <Pressable
-          style={
-            { width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,alignItems:'center'}
-          }
-        >
-          <View style={styles.HomeIcon}>
-            <View style={{width:40,height:40,borderRadius:40,borderColor:'black',borderWidth:1}}></View>
+        <Pressable>
+          <View
+            style={[
+              styles.HomeIcon,
+              {
+                width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
+              },
+            ]}
+          >
+            <View
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 40,
+                borderColor: 'black',
+                borderWidth: 1,
+              }}
+            ></View>
             {isOpen && <Text style={{ color: 'black' }}>Profile</Text>}
           </View>
         </Pressable>
-              <View
-        style={{
-          position: 'absolute',
-          marginTop: 15,
-          width: isOpen ? SIDEBAR_EXPANDED - 20 : 50,
-          height: 1,
-          backgroundColor: 'lightgrey',
-          marginLeft: isOpen ? 2 : 0,
-          // left: 5,
-          // right: 4,
-          bottom: 70,
-        }}
-      />
-      <View style = {{gap:20}}>
-       <Pressable
-          style={
-            { width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15 }
-          }
-        >
-          <View style={styles.HomeIcon}>
-            <Settings color={'black'} size={20} strokeWidth={2} />
-            {isOpen && <Text style={{ color: "black" }}>LogOut</Text>}
-          </View>
-        </Pressable>
-        <Pressable
-          style={
-            { width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15 }
-          }
-        >
-          <View style={styles.HomeIcon}>
-            <LogOut color={'red'} size={20} strokeWidth={2} />
-            {isOpen && <Text style={{ color: "#FF0000" }}>LogOut</Text>}
-          </View>
-        </Pressable>
+        <View
+          style={{
+            position: 'absolute',
+            marginTop: 15,
+            width: isOpen ? SIDEBAR_EXPANDED - 20 : 50,
+            height: 1,
+            backgroundColor: 'lightgrey',
+            marginLeft: isOpen ? 2 : 0,
+            // left: 5,
+            // right: 4,
+            bottom: 70,
+          }}
+        />
+        <View style={{ gap: 20 }}>
+          <Pressable
+            style={{
+              width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
+            }}
+          >
+            <View style={styles.HomeIcon}>
+              <Settings color={'black'} size={20} strokeWidth={2} />
+              {isOpen && <Text style={{ color: 'black' }}>LogOut</Text>}
+            </View>
+          </Pressable>
+          <Pressable
+            style={{
+              width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
+            }}
+          >
+            <View style={styles.HomeIcon}>
+              <LogOut color={'red'} size={20} strokeWidth={2} />
+              {isOpen && <Text style={{ color: '#FF0000' }}>LogOut</Text>}
+            </View>
+          </Pressable>
         </View>
       </View>
     </Animated.View>

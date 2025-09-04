@@ -4,9 +4,8 @@ import Input from '../components/Input';
 import { Lock, Mail, User } from 'lucide-react-native';
 import Button from '../components/Button';
 import LinearGradient from 'react-native-linear-gradient';
-
 function Signup() {
-      const [isPressedlogin, setIsPressedlogin] = useState(false);
+  const [isPressedlogin, setIsPressedlogin] = useState(false);
   return (
     <View style={styles.signupContainer}>
       <View style={styles.logoContainer}>
@@ -46,30 +45,36 @@ function Signup() {
             password
             icon={<Lock size={20} color="#6B7280" />}
           />
-                    <Input
+          <Input
             placeholder="Confirm your password"
             label="Confirm Password"
             password
             icon={<Lock size={20} color="#6B7280" />}
           />
         </View>
-        <Button left='#02ac70ff' right='#1994ffff' left1='#00C781' right1='#2D9CFF' text={'Sign Up'}/>
+        <Button
+          left="#02ac70ff"
+          right="#1994ffff"
+          left1="#00C781"
+          right1="#2D9CFF"
+          text={'Sign Up'}
+        />
       </View>
-                <View style={styles.login}>
-                  <Text>Have an account?</Text>
-                  <Pressable
-                    onPressIn={() => setIsPressedlogin(true)}
-                    onPressOut={() => setIsPressedlogin(false)}
-                  >
-                    <Text
-                      style={{
-                        color: isPressedlogin ? '#136be3' : '#288df8',
-                      }}
-                    >
-                      Log In
-                    </Text>
-                  </Pressable>
-                  </View>
+      <View style={styles.login}>
+        <Text>Have an account?</Text>
+        <Pressable
+          onPressIn={() => setIsPressedlogin(true)}
+          onPressOut={() => setIsPressedlogin(false)}
+        >
+          <Text
+            style={{
+              color: isPressedlogin ? '#136be3' : '#288df8',
+            }}
+          >
+            Log In
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -119,7 +124,7 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     paddingBottom: 30,
     borderRadius: 15,
-    backgroundColor:'#fff',
+    backgroundColor: '#fff',
   },
   textContainer: {
     width: '100%',
@@ -137,7 +142,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 20,
   },
-    login: {
+  login: {
     flexDirection: 'row',
   },
 });
