@@ -9,6 +9,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { ArrowLeft, Camera, Edit, Sun, Moon } from 'lucide-react-native';
 
 export default function Settings() {
@@ -110,16 +111,42 @@ export default function Settings() {
             </View>
             <View style={styles.themeToggle}>
               <Pressable 
-                style={[styles.themeOption, !isDarkMode && styles.themeOptionActive]} 
+                style={styles.themeOption}
                 onPress={() => setIsDarkMode(false)}
               >
-                <Sun size={16} color={!isDarkMode ? "#fff" : theme.subText} />
+                {!isDarkMode ? (
+                  <LinearGradient
+                    colors={['#b145f4', '#288df8']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.themeOptionGradient}
+                  >
+                    <Sun size={16} color="#fff" />
+                  </LinearGradient>
+                ) : (
+                  <View style={[styles.themeOptionInactive, { backgroundColor: theme.inputBackground }]}>
+                    <Sun size={16} color={theme.subText} />
+                  </View>
+                )}
               </Pressable>
               <Pressable 
-                style={[styles.themeOption, isDarkMode && styles.themeOptionActive]} 
+                style={styles.themeOption}
                 onPress={() => setIsDarkMode(true)}
               >
-                <Moon size={16} color={isDarkMode ? "#fff" : theme.subText} />
+                {isDarkMode ? (
+                  <LinearGradient
+                    colors={['#b145f4', '#288df8']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.themeOptionGradient}
+                  >
+                    <Moon size={16} color="#fff" />
+                  </LinearGradient>
+                ) : (
+                  <View style={[styles.themeOptionInactive, { backgroundColor: theme.inputBackground }]}>
+                    <Moon size={16} color={theme.subText} />
+                  </View>
+                )}
               </Pressable>
             </View>
           </View>
@@ -288,15 +315,21 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   themeOption: {
+    overflow: 'hidden',
+  },
+  themeOptionGradient: {
     width: 36,
     height: 36,
-    borderRadius: 18,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f0f0f0',
   },
-  themeOptionActive: {
-    backgroundColor: '#7c3aed',
+  themeOptionInactive: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   notificationToggle: {
     paddingHorizontal: 12,
