@@ -204,7 +204,7 @@ function SideBar() {
         >
           <View style={styles.HomeIcon}>
             <Settings color={'black'} size={20} strokeWidth={2} />
-            {isOpen && <Text style={{ color: "black" }}>LogOut</Text>}
+            {isOpen && <Text style={{ color: "black" }}>Settings</Text>}
           </View>
         </Pressable>
         <Pressable
