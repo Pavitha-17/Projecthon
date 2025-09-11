@@ -1,13 +1,41 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Pressable } from 'react-native';
+import { View, StyleSheet, Text, Pressable, TouchableOpacity } from 'react-native';
 import Input from '../components/Input';
-import { Lock, Mail } from 'lucide-react-native';
+import { Lock, Mail, Eye, EyeOff } from 'lucide-react-native';
 import Button from '../components/Button';
 import LinearGradient from 'react-native-linear-gradient';
 
 function Login() {
   const [isPressedforget, setIsPressedforget] = useState(false);
   const [isPressedsignup, setIsPressedsignup] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) return 'Email is required';
+    if (!emailRegex.test(email)) return 'Please enter a valid email';
+    return '';
+  };
+
+  const validatePassword = (password: string) => {
+    if (!password) return 'Password is required';
+    if (password.length < 6) return 'Password must be at least 6 characters';
+    return '';
+  };
+
+  const handleEmailChange = (text: string) => {
+    setEmail(text);
+    setEmailError(validateEmail(text));
+  };
+
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    setPasswordError(validatePassword(text));
+  };
 
   return (
     <View style={styles.Logincontainer}>
@@ -35,12 +63,23 @@ function Login() {
             placeholder="Enter the Email"
             label="Email"
             icon={<Mail size={20} color="#6B7280" />}
+            value={email}
+            onChangeText={handleEmailChange}
+            error={emailError}
           />
           <Input
             placeholder="Enter your password"
             label="Password"
-            password
+            password={!showPassword}
             icon={<Lock size={20} color="#6B7280" />}
+            rightIcon={
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                {showPassword ? <EyeOff size={20} color="#6B7280" /> : <Eye size={20} color="#6B7280" />}
+              </TouchableOpacity>
+            }
+            value={password}
+            onChangeText={handlePasswordChange}
+            error={passwordError}
           />
           <Pressable
             onPressIn={() => setIsPressedforget(true)}

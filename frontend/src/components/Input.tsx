@@ -3,11 +3,14 @@ import { View, Text, TextInput, StyleSheet, TextInputProps } from "react-native"
 
 type InputProps = TextInputProps & {
   icon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
   label: string;
   password?: boolean;
+  error?: string;
+  onChangeText?: (text: string) => void;
 };
 
-const CustomInput = ({ icon, label, password, ...rest }: InputProps) => {
+const CustomInput = ({ icon, rightIcon, label, password, error, onChangeText, ...rest }: InputProps) => {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
@@ -16,7 +19,7 @@ const CustomInput = ({ icon, label, password, ...rest }: InputProps) => {
       <View
         style={[
           styles.inputContainer,
-          { borderColor: isFocused ? "#A855F7" : "#ccc" },
+          { borderColor: error ? "#EF4444" : isFocused ? "#A855F7" : "#ccc" },
         ]}
       >
         {icon && <View style={styles.icon}>{icon}</View>}
@@ -26,9 +29,12 @@ const CustomInput = ({ icon, label, password, ...rest }: InputProps) => {
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholderTextColor={'#616468ff'}
+          onChangeText={onChangeText}
           {...rest}
         />
+        {rightIcon && <View style={styles.rightIcon}>{rightIcon}</View>}
       </View>
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
 };
@@ -59,6 +65,14 @@ const styles = StyleSheet.create({
     height: 48,
     fontSize: 16,
     color: "#111827",
+  },
+  errorText: {
+    fontSize: 12,
+    color: "#EF4444",
+    marginTop: 4,
+  },
+  rightIcon: {
+    marginLeft: 8,
   },
 });
 

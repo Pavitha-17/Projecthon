@@ -8,9 +8,10 @@ function App() {
 
   return (
     // <Login />
-    // <Signup />
+    <Signup />
     // <Home />
-    <Settings />
+
+    // <Settings />
     
   );
 }

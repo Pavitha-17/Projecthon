@@ -1,12 +1,58 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Pressable } from 'react-native';
+import { View, StyleSheet, Text, Pressable, TouchableOpacity } from 'react-native';
 import Input from '../components/Input';
-import { Lock, Mail, User } from 'lucide-react-native';
+import { Lock, Mail, User, Eye, EyeOff } from 'lucide-react-native';
 import Button from '../components/Button';
 import LinearGradient from 'react-native-linear-gradient';
 
 function Signup() {
-      const [isPressedlogin, setIsPressedlogin] = useState(false);
+  const [isPressedlogin, setIsPressedlogin] = useState(false);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) return 'Email is required';
+    if (!emailRegex.test(email)) return 'Please enter a valid email';
+    return '';
+  };
+
+  const validatePassword = (password: string) => {
+    if (!password) return 'Password is required';
+    if (password.length < 6) return 'Password must be at least 6 characters';
+    return '';
+  };
+
+  const validateConfirmPassword = (confirmPass: string) => {
+    if (!confirmPass) return 'Please confirm your password';
+    if (confirmPass !== password) return 'Passwords do not match';
+    return '';
+  };
+
+  const handleEmailChange = (text: string) => {
+    setEmail(text);
+    setEmailError(validateEmail(text));
+  };
+
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    setPasswordError(validatePassword(text));
+    if (confirmPassword) {
+      setConfirmPasswordError(validateConfirmPassword(confirmPassword));
+    }
+  };
+
+  const handleConfirmPasswordChange = (text: string) => {
+    setConfirmPassword(text);
+    setConfirmPasswordError(validateConfirmPassword(text));
+  };
   return (
     <View style={styles.signupContainer}>
       <View style={styles.logoContainer}>
@@ -33,24 +79,44 @@ function Signup() {
             placeholder="Enter your Name"
             label="User Name"
             icon={<User size={20} color="#6B7280" />}
+            value={username}
+            onChangeText={setUsername}
           />
           <Input
             placeholder="Enter Your Email"
             label="Email"
             icon={<Mail size={20} color="#6B7280" />}
+            value={email}
+            onChangeText={handleEmailChange}
+            error={emailError}
           />
-
           <Input
             placeholder="Create your password"
             label="Password"
-            password
+            password={!showPassword}
             icon={<Lock size={20} color="#6B7280" />}
+            rightIcon={
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                {showPassword ? <EyeOff size={20} color="#6B7280" /> : <Eye size={20} color="#6B7280" />}
+              </TouchableOpacity>
+            }
+            value={password}
+            onChangeText={handlePasswordChange}
+            error={passwordError}
           />
-                    <Input
+          <Input
             placeholder="Confirm your password"
             label="Confirm Password"
-            password
+            password={!showConfirmPassword}
             icon={<Lock size={20} color="#6B7280" />}
+            rightIcon={
+              <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                {showConfirmPassword ? <EyeOff size={20} color="#6B7280" /> : <Eye size={20} color="#6B7280" />}
+              </TouchableOpacity>
+            }
+            value={confirmPassword}
+            onChangeText={handleConfirmPasswordChange}
+            error={confirmPasswordError}
           />
         </View>
         <Button left='#02ac70ff' right='#1994ffff' left1='#00C781' right1='#2D9CFF' text={'Sign Up'}/>
