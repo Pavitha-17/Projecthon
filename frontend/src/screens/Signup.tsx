@@ -4,8 +4,13 @@ import Input from '../components/Input';
 import { Lock, Mail, User, Eye, EyeOff } from 'lucide-react-native';
 import Button from '../components/Button';
 import LinearGradient from 'react-native-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/types';
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 function Signup() {
+  const navigation = useNavigation<NavigationProp>();
   const [isPressedlogin, setIsPressedlogin] = useState(false);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -119,13 +124,14 @@ function Signup() {
             error={confirmPasswordError}
           />
         </View>
-        <Button left='#02ac70ff' right='#1994ffff' left1='#00C781' right1='#2D9CFF' text={'Sign Up'}/>
+        <Button left='#02ac70ff' right='#1994ffff' left1='#00C781' right1='#2D9CFF' text={'Sign Up'} onPress={() =>navigation.navigate('Home')}/>
       </View>
                 <View style={styles.login}>
                   <Text>Have an account?</Text>
                   <Pressable
                     onPressIn={() => setIsPressedlogin(true)}
                     onPressOut={() => setIsPressedlogin(false)}
+                    onPress={() => navigation.navigate('Login')}
                   >
                     <Text
                       style={{

@@ -7,20 +7,22 @@ type InputProps = TextInputProps & {
   right: string;
   left1: string;
   right1: string;
-  text: String;
+  text: string; // Fixed typo: String -> string
+  onPress?: () => void; // Add onPress to the type definition
 };
 
-export default function Button({ left, right, text,left1,right1 }: InputProps) {
+export default function Button({ left, right, text, left1, right1, onPress }: InputProps) {
   const [isPressed, setIsPressed] = useState(false);
 
   return (
     <Pressable
       onPressIn={() => setIsPressed(true)}
       onPressOut={() => setIsPressed(false)}
+      onPress={onPress} // Add onPress here to trigger the passed function
       style={styles.buttonContainer}
     >
       <LinearGradient
-        colors={isPressed ? [left,right] : [left1, right1]}
+        colors={isPressed ? [left, right] : [left1, right1]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.gradient}

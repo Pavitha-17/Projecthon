@@ -8,13 +8,16 @@ import {
   StyleSheet,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/types';
 import {
   Home,
   Plus,
   Search,
   UserCircle,
   LogOut,
-  Settings
+  Settings,
 } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
@@ -22,8 +25,13 @@ const { width } = Dimensions.get('window');
 const SIDEBAR_EXPANDED = width * 0.7;
 const SIDEBAR_COLLAPSED = 60;
 
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
 function SideBar() {
+  const navigation = useNavigation<NavigationProp>();
   const [isOpen, setIsOpen] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
+  const [isAddPressed, setIsAddPressed] = useState(false);
   const slideAnim = useRef(new Animated.Value(SIDEBAR_COLLAPSED)).current;
 
   const toggleSidebar = () => {
@@ -33,8 +41,7 @@ function SideBar() {
       useNativeDriver: false,
     }).start(() => setIsOpen(!isOpen));
   };
-  const [isPressed, setIsPressed] = useState(false);
-  const [isAddpressed, setIsAddPressed] = useState(false);
+
   return (
     <Animated.View style={[styles.container, { width: slideAnim }]}>
       <View
@@ -86,6 +93,7 @@ function SideBar() {
                 width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
               },
             ]}
+            onPress={() => navigation.navigate('Home')}
           >
             <View style={styles.HomeIcon}>
               <Home color={'black'} size={20} strokeWidth={2} />
@@ -104,7 +112,7 @@ function SideBar() {
           >
             <LinearGradient
               colors={
-                isAddpressed ? ['#a129d3', '#136be3'] : ['#b145f4', '#288df8']
+                isAddPressed ? ['#a129d3', '#136be3'] : ['#b145f4', '#288df8']
               }
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
@@ -168,55 +176,62 @@ function SideBar() {
           position: 'absolute',
           left: 5,
           right: 5,
-          bottom:50,
-          gap:20,
-          // alignItems:'center',
+          bottom: 50,
+          gap: 20,
         }}
       >
         <Pressable
-          style={
-            { width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,alignItems:'center'}
-          }
+          style={{
+            width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
+            alignItems: 'center',
+          }}
         >
           <View style={styles.HomeIcon}>
-            <View style={{width:40,height:40,borderRadius:40,borderColor:'black',borderWidth:1}}></View>
+            <View
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 40,
+                borderColor: 'black',
+                borderWidth: 1,
+              }}
+            ></View>
             {isOpen && <Text style={{ color: 'black' }}>Profile</Text>}
           </View>
         </Pressable>
-              <View
-        style={{
-          position: 'absolute',
-          marginTop: 15,
-          width: isOpen ? SIDEBAR_EXPANDED - 20 : 50,
-          height: 1,
-          backgroundColor: 'lightgrey',
-          marginLeft: isOpen ? 2 : 0,
-          // left: 5,
-          // right: 4,
-          bottom: 70,
-        }}
-      />
-      <View style = {{gap:20}}>
-       <Pressable
-          style={
-            { width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15 }
-          }
-        >
-          <View style={styles.HomeIcon}>
-            <Settings color={'black'} size={20} strokeWidth={2} />
-            {isOpen && <Text style={{ color: "black" }}>Settings</Text>}
-          </View>
-        </Pressable>
-        <Pressable
-          style={
-            { width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15 }
-          }
-        >
-          <View style={styles.HomeIcon}>
-            <LogOut color={'red'} size={20} strokeWidth={2} />
-            {isOpen && <Text style={{ color: "#FF0000" }}>LogOut</Text>}
-          </View>
-        </Pressable>
+        <View
+          style={{
+            position: 'absolute',
+            marginTop: 15,
+            width: isOpen ? SIDEBAR_EXPANDED - 20 : 50,
+            height: 1,
+            backgroundColor: 'lightgrey',
+            marginLeft: isOpen ? 2 : 0,
+            bottom: 70,
+          }}
+        />
+        <View style={{ gap: 20 }}>
+          <Pressable
+            style={{
+              width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
+            }}
+            onPress={() => navigation.navigate('Settings')}
+          >
+            <View style={styles.HomeIcon}>
+              <Settings color={'black'} size={20} strokeWidth={2} />
+              {isOpen && <Text style={{ color: 'black' }}>Settings</Text>}
+            </View>
+          </Pressable>
+          <Pressable
+            style={{
+              width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
+            }}
+          >
+            <View style={styles.HomeIcon}>
+              <LogOut color={'red'} size={20} strokeWidth={2} />
+              {isOpen && <Text style={{ color: '#FF0000' }}>LogOut</Text>}
+            </View>
+          </Pressable>
         </View>
       </View>
     </Animated.View>
@@ -237,30 +252,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  menuBtn: {
-    marginBottom: 30,
-  },
-  menuIcon: {
-    fontSize: 28,
-    color: '#fff',
-  },
-  menuItems: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  icon: {
-    fontSize: 22,
-    color: '#fff',
-    width: 30,
-    textAlign: 'center',
-  },
-  label: {
-    fontSize: 18,
-    color: '#fff',
-    marginLeft: 10,
-  },
   buttonContainer: {
-    // borderRadius: 12,
     overflow: 'hidden',
     width: 40,
   },

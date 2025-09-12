@@ -11,8 +11,13 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { ArrowLeft, Camera, Edit, Sun, Moon } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/types';
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function Settings() {
+  const navigation = useNavigation<NavigationProp>();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [name, setName] = useState('fsv');
@@ -44,7 +49,7 @@ export default function Settings() {
       {/* Header */}
       <View style={[styles.header, { backgroundColor: theme.cardBackground, borderBottomColor: theme.border }]}>
         <Pressable style={styles.backButton}>
-          <ArrowLeft size={24} color={theme.text} />
+          <ArrowLeft size={24} color={theme.text} onPress={navigation.goBack}/>
         </Pressable>
         <Text style={[styles.headerTitle, { color: theme.text }]}>Settings</Text>
         <View style={styles.headerRight} />

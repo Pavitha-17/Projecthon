@@ -4,8 +4,13 @@ import Input from '../components/Input';
 import { Lock, Mail, Eye, EyeOff } from 'lucide-react-native';
 import Button from '../components/Button';
 import LinearGradient from 'react-native-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../navigation/types';
+type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 function Login() {
+  const navigation = useNavigation<NavigationProp>();
   const [isPressedforget, setIsPressedforget] = useState(false);
   const [isPressedsignup, setIsPressedsignup] = useState(false);
   const [email, setEmail] = useState('');
@@ -100,6 +105,7 @@ function Login() {
             left1="#b145f4"
             right1="#288df8"
             text={'Log In'}
+            onPress={() => navigation.navigate('Home')}
           />
       </View>
         </View>
@@ -109,6 +115,7 @@ function Login() {
             <Pressable
               onPressIn={() => setIsPressedsignup(true)}
               onPressOut={() => setIsPressedsignup(false)}
+              onPress={() => navigation.navigate('Signup')}
             >
               <Text
                 style={{
