@@ -17,6 +17,10 @@ import {
   Clock,
 } from 'lucide-react-native';
 import ChatHistory from '../components/ChatHistory';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../navigation/types';
+type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 const { width } = Dimensions.get('window');
 
@@ -24,6 +28,7 @@ const SIDEBAR_EXPANDED = width * 0.7;
 const SIDEBAR_COLLAPSED = 60;
 
 function SideBar() {
+   const navigation = useNavigation<NavigationProp>();
   const [isOpen, setIsOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(SIDEBAR_COLLAPSED)).current;
   const [active, setActive] = useState(0);
@@ -257,6 +262,7 @@ function SideBar() {
           style={
             { width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15 }
           }
+          onPress={()=>navigation.navigate('Settings')}
         >
           <View style={styles.HomeIcon}>
             <Settings color={'black'} size={20} strokeWidth={2} />
