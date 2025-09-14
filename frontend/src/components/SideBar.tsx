@@ -182,6 +182,7 @@ function SideBar() {
           </View>
           {dummyData.map((obj,index)=>{
             return (<ChatHistory
+            key={index}
             isOpen={isOpen}
             SIDEBAR_COLLAPSED={SIDEBAR_COLLAPSED}
             SIDEBAR_EXPANDED={SIDEBAR_EXPANDED}

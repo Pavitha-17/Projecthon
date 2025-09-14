@@ -26,7 +26,7 @@ function ChatHistory({
   recentMessage,
   isClicked,
   setIsClicked,
-  index
+  index,
 }: InputProps) {
   return (
     <Pressable
@@ -35,20 +35,20 @@ function ChatHistory({
           width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
         },
       ]}
-      onPress={()=>setIsClicked(index)}
+      onPress={()=>setIsClicked(index + 2)}
     >
       <View
         style={[
           styles.historyContainer,
           {
             borderWidth: 1,
-            borderColor: isClicked === index?"#dd96f7ff":"lightgrey",
+            borderColor: isClicked === index+2?"#dd96f7ff":"lightgrey",
             paddingVertical: 10,
-            backgroundColor:isClicked?"#f9eefdff":"#fff",
+            backgroundColor:isClicked === index+2?"#f9eefdff":"#fff",
           },
         ]}
       >
-        <MessageCircle color={ isClicked?"#dd96f7ff":"black"} size={25} strokeWidth={1} />
+        <MessageCircle color={ isClicked === index+2?"#dd96f7ff":"black"} size={25} strokeWidth={1} />
         {isOpen && 
         (<View>
         <Text style={{ color: 'black'}}>{chat}</Text>
