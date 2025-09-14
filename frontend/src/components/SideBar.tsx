@@ -239,40 +239,40 @@ function SideBar() {
             {isOpen && <Text style={{ color: 'black' }}>Profile</Text>}
           </View>
         </Pressable>
-        <View
-          style={{
-            position: 'absolute',
-            marginTop: 15,
-            width: isOpen ? SIDEBAR_EXPANDED - 20 : 50,
-            height: 1,
-            backgroundColor: 'lightgrey',
-            marginLeft: isOpen ? 2 : 0,
-            // left: 5,
-            // right: 4,
-            bottom: 70,
-          }}
-        />
-        <View style={{ gap: 20 }}>
-          <Pressable
-            style={{
-              width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
-            }}
-          >
-            <View style={styles.HomeIcon}>
-              <Settings color={'black'} size={20} strokeWidth={2} />
-              {isOpen && <Text style={{ color: 'black' }}>LogOut</Text>}
-            </View>
-          </Pressable>
-          <Pressable
-            style={{
-              width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
-            }}
-          >
-            <View style={styles.HomeIcon}>
-              <LogOut color={'red'} size={20} strokeWidth={2} />
-              {isOpen && <Text style={{ color: '#FF0000' }}>LogOut</Text>}
-            </View>
-          </Pressable>
+              <View
+        style={{
+          position: 'absolute',
+          marginTop: 15,
+          width: isOpen ? SIDEBAR_EXPANDED - 20 : 50,
+          height: 1,
+          backgroundColor: 'lightgrey',
+          marginLeft: isOpen ? 2 : 0,
+          // left: 5,
+          // right: 4,
+          bottom: 70,
+        }}
+      />
+      <View style = {{gap:20}}>
+       <Pressable
+          style={
+            { width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15 }
+          }
+        >
+          <View style={styles.HomeIcon}>
+            <Settings color={'black'} size={20} strokeWidth={2} />
+            {isOpen && <Text style={{ color: "black" }}>Settings</Text>}
+          </View>
+        </Pressable>
+        <Pressable
+          style={
+            { width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15 }
+          }
+        >
+          <View style={styles.HomeIcon}>
+            <LogOut color={'red'} size={20} strokeWidth={2} />
+            {isOpen && <Text style={{ color: "#FF0000" }}>LogOut</Text>}
+          </View>
+        </Pressable>
         </View>
       </View>
     </Animated.View>
