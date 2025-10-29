@@ -7,8 +7,8 @@ type InputProps = TextInputProps & {
   right: string;
   left1: string;
   right1: string;
-  text: string; // Fixed typo: String -> string
-  onPress?: () => void; // Add onPress to the type definition
+  text: string;
+  onPress?: () => void;
 };
 
 export default function Button({ left, right, text, left1, right1, onPress }: InputProps) {
@@ -18,7 +18,7 @@ export default function Button({ left, right, text, left1, right1, onPress }: In
     <Pressable
       onPressIn={() => setIsPressed(true)}
       onPressOut={() => setIsPressed(false)}
-      onPress={onPress} // Add onPress here to trigger the passed function
+      onPress={onPress}
       style={styles.buttonContainer}
     >
       <LinearGradient

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Pressable, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, Pressable, TouchableOpacity, Alert } from 'react-native';
 import Input from '../components/Input';
 import { Lock, Mail, User, Eye, EyeOff } from 'lucide-react-native';
 import Button from '../components/Button';
@@ -57,6 +57,16 @@ function Signup() {
   const handleConfirmPasswordChange = (text: string) => {
     setConfirmPassword(text);
     setConfirmPasswordError(validateConfirmPassword(text));
+  };
+
+  const isFormValid = () => {
+    return username.trim() && 
+           email.trim() && 
+           password.trim() && 
+           confirmPassword.trim() &&
+           !emailError && 
+           !passwordError && 
+           !confirmPasswordError;
   };
   return (
     <View style={styles.signupContainer}>
@@ -124,7 +134,20 @@ function Signup() {
             error={confirmPasswordError}
           />
         </View>
-        <Button left='#02ac70ff' right='#1994ffff' left1='#00C781' right1='#2D9CFF' text={'Sign Up'} onPress={() =>navigation.navigate('Home')}/>
+        <Button 
+          left='#02ac70ff' 
+          right='#1994ffff' 
+          left1='#00C781' 
+          right1='#2D9CFF' 
+          text={'Sign Up'} 
+          onPress={() => {
+            if (!isFormValid()) {
+              Alert.alert('Required Fields', 'Please fill all fields correctly');
+            } else {
+              navigation.navigate('Home');
+            }
+          }}
+        />
       </View>
                 <View style={styles.login}>
                   <Text>Have an account?</Text>

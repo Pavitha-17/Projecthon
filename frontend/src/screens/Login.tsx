@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Pressable, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, Pressable, TouchableOpacity, Alert } from 'react-native';
 import Input from '../components/Input';
 import { Lock, Mail, Eye, EyeOff } from 'lucide-react-native';
 import Button from '../components/Button';
@@ -40,6 +40,13 @@ function Login() {
   const handlePasswordChange = (text: string) => {
     setPassword(text);
     setPasswordError(validatePassword(text));
+  };
+
+  const isFormValid = () => {
+    return email.trim() && 
+           password.trim() &&
+           !emailError && 
+           !passwordError;
   };
 
   return (
@@ -105,7 +112,13 @@ function Login() {
             left1="#b145f4"
             right1="#288df8"
             text={'Log In'}
-            onPress={() => navigation.navigate('Home')}
+            onPress={() => {
+              if (!isFormValid()) {
+                Alert.alert('Required Fields', 'Please fill all fields correctly');
+              } else {
+                navigation.navigate('Home');
+              }
+            }}
           />
       </View>
         </View>
