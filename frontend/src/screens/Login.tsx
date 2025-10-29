@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Pressable, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  Pressable,
+  TouchableOpacity,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+} from 'react-native';
 import Input from '../components/Input';
 import { Lock, Mail, Eye, EyeOff } from 'lucide-react-native';
 import Button from '../components/Button';
@@ -7,6 +17,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/types';
+
 type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 function Login() {
@@ -43,100 +54,130 @@ function Login() {
   };
 
   return (
-    <View style={styles.Logincontainer}>
-      <View style={styles.logoContainer}>
-        <LinearGradient
-          colors={['#a129d3', '#136be3']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.gradient}
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
         >
-          <Text style={styles.gradienttext}>AI</Text>
-        </LinearGradient>
-        <View style={styles.logoText}>
-          <Text style={styles.chatbot}>CHAT BOT</Text>
-          <Text>Sign in to start your conversation</Text>
-        </View>
-      </View>
-      <View style={styles.signinContainer}>
-        <View style={styles.textContainer}>
-          <Text style={styles.signin}>Sign In</Text>
-          {/* <Text>Enter Your credentials to access your account</Text> */}
-        </View>
-        <View style={styles.inputContainer}>
-          <Input
-            placeholder="Enter the Email"
-            label="Email"
-            icon={<Mail size={20} color="#6B7280" />}
-            value={email}
-            onChangeText={handleEmailChange}
-            error={emailError}
-          />
-          <Input
-            placeholder="Enter your password"
-            label="Password"
-            password={!showPassword}
-            icon={<Lock size={20} color="#6B7280" />}
-            rightIcon={
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                {showPassword ? <EyeOff size={20} color="#6B7280" /> : <Eye size={20} color="#6B7280" />}
-              </TouchableOpacity>
-            }
-            value={password}
-            onChangeText={handlePasswordChange}
-            error={passwordError}
-          />
-          <Pressable
-            onPressIn={() => setIsPressedforget(true)}
-            onPressOut={() => setIsPressedforget(false)}
-          >
-            <Text
-              style={{
-                color: isPressedforget ? '#94969cff' : '#6B7280',
-                marginLeft: 150,
-              }}
-            >
-              Forget Password ?
-            </Text>
-          </Pressable>
-          <Button
-            left="#a129d3"
-            right="#136be3"
-            left1="#b145f4"
-            right1="#288df8"
-            text={'Log In'}
-            onPress={() => navigation.navigate('Home')}
-          />
-      </View>
-        </View>
-
-          <View style={styles.signup}>
-            <Text>Don't have an account?</Text>
-            <Pressable
-              onPressIn={() => setIsPressedsignup(true)}
-              onPressOut={() => setIsPressedsignup(false)}
-              onPress={() => navigation.navigate('Signup')}
-            >
-              <Text
-                style={{
-                  color: isPressedsignup ? '#136be3' : '#288df8',
-                }}
+          <View style={styles.Logincontainer}>
+            <View style={styles.logoContainer}>
+              <LinearGradient
+                colors={['#a129d3', '#136be3']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.gradient}
               >
-                Sign Up
-              </Text>
-            </Pressable>
+                <Text style={styles.gradienttext}>AI</Text>
+              </LinearGradient>
+              <View style={styles.logoText}>
+                <Text style={styles.chatbot}>CHAT BOT</Text>
+                <Text style={styles.subtitle}>Sign in to start your conversation</Text>
+              </View>
+            </View>
+
+            <View style={styles.signinContainer}>
+              <View style={styles.textContainer}>
+                <Text style={styles.signin}>Sign In</Text>
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Input
+                  placeholder="Enter the Email"
+                  label="Email"
+                  icon={<Mail size={20} color="#6B7280" />}
+                  value={email}
+                  onChangeText={handleEmailChange}
+                  error={emailError}
+                />
+                <Input
+                  placeholder="Enter your password"
+                  label="Password"
+                  password={!showPassword}
+                  icon={<Lock size={20} color="#6B7280" />}
+                  rightIcon={
+                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                      {showPassword ? (
+                        <EyeOff size={20} color="#6B7280" />
+                      ) : (
+                        <Eye size={20} color="#6B7280" />
+                      )}
+                    </TouchableOpacity>
+                  }
+                  value={password}
+                  onChangeText={handlePasswordChange}
+                  error={passwordError}
+                />
+                <Pressable
+                  onPressIn={() => setIsPressedforget(true)}
+                  onPressOut={() => setIsPressedforget(false)}
+                  // onPress={() => navigation.navigate('ForgotPassword')}
+                >
+                  <Text
+                    style={{
+                      color: isPressedforget ? '#94969cff' : '#6B7280',
+                      alignSelf: 'flex-end',
+                      marginRight: 20,
+                    }}
+                  >
+                    Forget Password?
+                  </Text>
+                </Pressable>
+
+                <Button
+                  left="#a129d3"
+                  right="#136be3"
+                  left1="#b145f4"
+                  right1="#288df8"
+                  text={'Log In'}
+                  onPress={() => navigation.navigate('Home')}
+                />
+              </View>
+            </View>
+
+            <View style={styles.signup}>
+              <Text style={styles.signupText}>Don't have an account?</Text>
+              <Pressable
+                onPressIn={() => setIsPressedsignup(true)}
+                onPressOut={() => setIsPressedsignup(false)}
+                onPress={() => navigation.navigate('Signup')}
+              >
+                <Text
+                  style={{
+                    color: isPressedsignup ? '#136be3' : '#288df8',
+                    marginLeft: 5,
+                    fontWeight: '600',
+                  }}
+                >
+                  Sign Up
+                </Text>
+              </Pressable>
+            </View>
           </View>
-    </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    backgroundColor: '#fff4ffff',
+  },
   Logincontainer: {
     flex: 1,
-    backgroundColor: '#fff4ffff',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 30,
+    paddingVertical: 20,
   },
   inputContainer: {
     width: '100%',
@@ -152,7 +193,7 @@ const styles = StyleSheet.create({
   },
   signin: {
     fontSize: 22,
-    fontWeight: 400,
+    fontWeight: '500',
   },
   gradient: {
     height: 60,
@@ -192,6 +233,18 @@ const styles = StyleSheet.create({
   },
   signup: {
     flexDirection: 'row',
+    alignItems: 'center',
+  },
+  signupText: {
+    color: '#6B7280',
+  },
+  subtitle: {
+    color: '#6B7280',
+    fontSize: 14,
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fff4ffff',
   },
 });
 

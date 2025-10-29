@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+// components/SideBar.tsx
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,6 +7,8 @@ import {
   Animated,
   Dimensions,
   StyleSheet,
+  TextInput,
+  ScrollView,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {
@@ -15,348 +18,319 @@ import {
   LogOut,
   Settings,
   Clock,
+  X,
 } from 'lucide-react-native';
-import ChatHistory from '../components/ChatHistory';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../navigation/types';
-type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 const { width } = Dimensions.get('window');
+const SIDEBAR_WIDTH = width * 0.75;
+export const SIDEBAR_EXPANDED = SIDEBAR_WIDTH;
+export const SIDEBAR_COLLAPSED = 60;
 
-const SIDEBAR_EXPANDED = width * 0.7;
-const SIDEBAR_COLLAPSED = 60;
+type Chat = {
+  id: string;
+  title: string;
+  recentMessage: string;
+  messages: { text: string; sender: 'user' | 'ai' }[];
+  timestamp: Date;
+};
 
-function SideBar() {
-   const navigation = useNavigation<NavigationProp>();
-  const [isOpen, setIsOpen] = useState(false);
-  const slideAnim = useRef(new Animated.Value(SIDEBAR_COLLAPSED)).current;
-  const [active, setActive] = useState(0);
+type Props = {
+  isOpen: boolean;
+  onClose: () => void;
+  onNewChat: () => void;
+  onSelectChat: (chat: Chat) => void;
+  currentChatId: string | null;
+};
 
-  const toggleSidebar = () => {
+export default function SideBar({
+  isOpen,
+  onClose,
+  onNewChat,
+  onSelectChat,
+  currentChatId,
+}: Props) {
+  const slideAnim = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
+  const [searchText, setSearchText] = useState('');
+  const [chats, setChats] = useState<Chat[]>([
+    {
+      id: '1',
+      title: 'About me',
+      recentMessage: 'You are a great coder...',
+      messages: [
+        { text: 'You are a great coder...', sender: 'user' },
+        { text: 'Thanks!', sender: 'ai' },
+      ],
+      timestamp: new Date(),
+    },
+    {
+      id: '2',
+      title: 'Projecthon',
+      recentMessage: 'It was an amazing event...',
+      messages: [
+        { text: 'It was an amazing event...', sender: 'user' },
+        { text: 'Tell me more!', sender: 'ai' },
+      ],
+      timestamp: new Date(),
+    },
+  ]);
+
+  useEffect(() => {
     Animated.timing(slideAnim, {
-      toValue: isOpen ? SIDEBAR_COLLAPSED : SIDEBAR_EXPANDED,
+      toValue: isOpen ? 0 : -SIDEBAR_WIDTH,
       duration: 300,
-      useNativeDriver: false,
-    }).start(() => setIsOpen(!isOpen));
+      useNativeDriver: true,
+    }).start();
+  }, [isOpen]);
+
+  // Filter chats
+  const filteredChats = useMemo(() => {
+    if (!searchText.trim()) return chats;
+    return chats.filter(
+      (c) =>
+        c.title.toLowerCase().includes(searchText.toLowerCase()) ||
+        c.recentMessage.toLowerCase().includes(searchText.toLowerCase())
+    );
+  }, [chats, searchText]);
+
+  // Create new chat
+  const handleNewChat = () => {
+    const newChat: Chat = {
+      id: Date.now().toString(),
+      title: 'New Chat',
+      recentMessage: '',
+      messages: [],
+      timestamp: new Date(),
+    };
+    setChats((prev) => [newChat, ...prev]);
+    onNewChat();
+    onSelectChat(newChat);
+    onClose();
   };
-  const [isPressed, setIsPressed] = useState(false);
-  const [isAddpressed, setIsAddPressed] = useState(false);
-  const dummyData = [{chat:'About me',recentMessage:'Your are Great and Amazing coder....'}
-    ,{chat:'About Projecthon',recentMessage:'Projecthon was an amazing event....'}
-  ]
+
+  // Update chat title after first message
+  const updateChatTitle = (chatId: string, firstMessage: string) => {
+    setChats((prev) =>
+      prev.map((c) =>
+        c.id === chatId
+          ? {
+              ...c,
+              title: firstMessage.slice(0, 30) + (firstMessage.length > 30 ? '...' : ''),
+              recentMessage: firstMessage,
+            }
+          : c
+      )
+    );
+  };
+
+  // Expose to parent
+  React.useImperativeHandle(null, () => ({
+    updateChatTitle,
+  }));
+
   return (
-    <Animated.View style={[styles.container, { width: slideAnim }]}>
-      <View
+    <>
+      {/* DARK OVERLAY */}
+      {isOpen && (
+        <Pressable style={StyleSheet.absoluteFillObject} onPress={onClose}>
+          <Animated.View
+            style={[
+              styles.overlay,
+              {
+                opacity: slideAnim.interpolate({
+                  inputRange: [-SIDEBAR_WIDTH, 0],
+                  outputRange: [0, 0.5],
+                }),
+              },
+            ]}
+          />
+        </Pressable>
+      )}
+
+      {/* SLIDING SIDEBAR */}
+      <Animated.View
         style={[
-          styles.sidebar,
-          { alignItems: isOpen ? 'flex-start' : 'center' },
+          styles.container,
+          { transform: [{ translateX: slideAnim }], width: SIDEBAR_WIDTH },
         ]}
+        pointerEvents={isOpen ? 'auto' : 'none'}
       >
-        {/* Sidebar Content */}
-        <View style={{ alignItems: 'center', flexDirection: 'row', gap: 20 }}>
-          <Pressable
-            onPressIn={() => setIsPressed(true)}
-            onPressOut={() => setIsPressed(false)}
-            style={styles.buttonContainer}
-            onPress={() => {
-              setIsPressed(true);
-              toggleSidebar();
-            }}
-          >
+        <View style={styles.sidebar}>
+          {/* HEADER */}
+          <Pressable onPress={onClose} style={styles.header}>
             <LinearGradient
-              colors={
-                isPressed ? ['#a129d3', '#136be3'] : ['#b145f4', '#288df8']
-              }
+              colors={['#b145f4', '#288df8']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
-              style={styles.gradientIcon}
+              style={styles.logo}
             >
-              <Text style={styles.text}>AI</Text>
+              <Text style={styles.logoText}>AI</Text>
             </LinearGradient>
+            <Text style={styles.title}>AI Assistant</Text>
           </Pressable>
-          {isOpen && <Text style={{ color: 'black' }}>AI Assistant</Text>}
-        </View>
 
-        <View
-          style={{
-            marginTop: 10,
-            width: isOpen ? SIDEBAR_EXPANDED - 20 : 50,
-            height: 1,
-            backgroundColor: 'lightgrey',
-            marginLeft: isOpen ? 2 : 0,
-          }}
-        />
+          <View style={styles.divider} />
 
-        <View style={{ gap: 20, alignItems: 'center' }}>
-          <Pressable
-            style={[
-              styles.homeIcon,
-              {
-                width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
-              },
-            ]}
-            onPress={()=>setActive(0)}
-          >
-            <View
-              style={[
-                styles.HomeIcon,
-                {
-                  borderWidth: 1,
-                  borderColor: active === 0 ? 'black' : 'lightgrey',
-                  paddingVertical: 10,
-                  borderRadius: 15,
-                },
-              ]}
-            >
-              <Home color={'black'} size={20} strokeWidth={2} />
-              {isOpen && <Text style={{ color: 'black' }}>Home</Text>}
+          {/* MENU */}
+          <View style={styles.menu}>
+            <Pressable style={styles.newChatBtn} onPress={handleNewChat}>
+              <LinearGradient
+                colors={['#a129d3', '#136be3']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.newChatGradient}
+              >
+                <Plus size={20} color="#fff" />
+                <Text style={styles.newChatText}>New Chat</Text>
+              </LinearGradient>
+            </Pressable>
+
+            <View style={styles.searchContainer}>
+              <Search size={18} color="#666" style={styles.searchIcon} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search chats..."
+                placeholderTextColor="#999"
+                value={searchText}
+                onChangeText={setSearchText}
+              />
+              {searchText ? (
+                <Pressable onPress={() => setSearchText('')}>
+                  <X size={18} color="#666" />
+                </Pressable>
+              ) : null}
             </View>
-          </Pressable>
+          </View>
 
-          <Pressable
-            style={[
-              styles.addIcon,
-              {
-                width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
-              },
-            ]}
-            onPress={() => setIsAddPressed(true)}
-          >
-            <LinearGradient
-              colors={
-                isAddpressed ? ['#a129d3', '#136be3'] : ['#b145f4', '#288df8']
-              }
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.gradientAddIcon}
-            >
-              <Plus color={'#fff'} size={20} />
-              {isOpen && <Text style={{ color: '#fff' }}>New Chat</Text>}
-            </LinearGradient>
-          </Pressable>
-          <Pressable
-            style={[
-              styles.addIcon,
-              {
-                width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
-              },
-            ]}
-            onPress={()=>setActive(1)}
-          >
-            <View
-              style={[
-                styles.HomeIcon,
-                {
-                  borderWidth: 1,
-                  borderColor: active === 1?'black':'lightgrey',
-                  paddingVertical: 10,
-                  borderRadius:15,
-                },
-              ]}
-            >
-              <Search color={'black'} size={20} strokeWidth={1} />
-              {isOpen && (
-                <Text style={{ color: 'black' }}>Search Chats...</Text>
-              )}
-            </View>
-          </Pressable>
-        </View>
+          <View style={styles.divider} />
 
-        <View
-          style={{
-            marginTop: 15,
-            width: isOpen ? SIDEBAR_EXPANDED - 20 : 50,
-            height: 1,
-            backgroundColor: 'lightgrey',
-            marginLeft: isOpen ? 2 : 0,
-          }}
-        />
-        <View style={{ alignItems: 'center', gap: 10, paddingTop: 10 }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 10,
-              width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
-              paddingLeft: 10,
-            }}
-          >
-            <Clock size={20} strokeWidth={1} color={'grey'} />
-            {isOpen && <Text>Recent Chats</Text>}
+          {/* RECENT CHATS (Scrollable) */}
+          <ScrollView style={styles.chatList} showsVerticalScrollIndicator={false}>
+            {filteredChats.length === 0 ? (
+              <Text style={styles.noResults}>No chats found</Text>
+            ) : (
+              filteredChats.map((chat) => (
+                <Pressable
+                  key={chat.id}
+                  style={[
+                    styles.chatItem,
+                    currentChatId === chat.id && styles.activeChat,
+                  ]}
+                  onPress={() => {
+                    onSelectChat(chat);
+                    onClose();
+                  }}
+                >
+                  <View style={styles.chatContent}>
+                    <Text style={styles.chatTitle} numberOfLines={1}>
+                      {chat.title}
+                    </Text>
+                    <Text style={styles.chatPreview} numberOfLines={1}>
+                      {chat.recentMessage || 'No messages yet'}
+                    </Text>
+                  </View>
+                  <Text style={styles.chatTime}>
+                    {chat.timestamp.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </Text>
+                </Pressable>
+              ))
+            )}
+          </ScrollView>
+
+          <View style={styles.divider} />
+
+          {/* BOTTOM */}
+          <View style={styles.bottom}>
+            <Pressable style={styles.bottomItem}>
+              <View style={styles.avatar} />
+              <Text style={styles.bottomText}>Profile</Text>
+            </Pressable>
+            <Pressable style={styles.bottomItem}>
+              <Settings size={20} color="#666" />
+              <Text style={styles.bottomText}>Settings</Text>
+            </Pressable>
+            <Pressable style={styles.bottomItem}>
+              <LogOut size={20} color="#FF0000" />
+              <Text style={[styles.bottomText, { color: '#FF0000' }]}>Logout</Text>
+            </Pressable>
           </View>
-          {dummyData.map((obj,index)=>{
-            return (<ChatHistory
-            key={index}
-            isOpen={isOpen}
-            SIDEBAR_COLLAPSED={SIDEBAR_COLLAPSED}
-            SIDEBAR_EXPANDED={SIDEBAR_EXPANDED}
-            chat={obj.chat}
-            recentMessage={obj.recentMessage}
-            isClicked={active}
-            setIsClicked={setActive}
-            index={index}
-          />)
-          })}
         </View>
-      </View>
-      <View
-        style={{
-          position: 'absolute',
-          marginTop: 15,
-          width: isOpen ? SIDEBAR_EXPANDED - 20 : 50,
-          height: 1,
-          backgroundColor: 'lightgrey',
-          marginLeft: isOpen ? 2 : 0,
-          left: 5,
-          right: 5,
-          bottom: 180,
-        }}
-      />
-      <View
-        style={{
-          position: 'absolute',
-          left: 5,
-          right: 5,
-          bottom: 50,
-          gap: 20,
-          // alignItems:'center',
-        }}
-      >
-        <Pressable>
-          <View
-            style={[
-              styles.HomeIcon,
-              {
-                width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15,
-              },
-            ]}
-          >
-            <View
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 40,
-                borderColor: 'black',
-                borderWidth: 1,
-              }}
-            ></View>
-            {isOpen && <Text style={{ color: 'black' }}>Profile</Text>}
-          </View>
-        </Pressable>
-              <View
-        style={{
-          position: 'absolute',
-          marginTop: 15,
-          width: isOpen ? SIDEBAR_EXPANDED - 20 : 50,
-          height: 1,
-          backgroundColor: 'lightgrey',
-          marginLeft: isOpen ? 2 : 0,
-          // left: 5,
-          // right: 4,
-          bottom: 70,
-        }}
-      />
-      <View style = {{gap:20}}>
-       <Pressable
-          style={
-            { width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15 }
-          }
-          onPress={()=>navigation.navigate('Settings')}
-        >
-          <View style={styles.HomeIcon}>
-            <Settings color={'black'} size={20} strokeWidth={2} />
-            {isOpen && <Text style={{ color: "black" }}>Settings</Text>}
-          </View>
-        </Pressable>
-        <Pressable
-          style={
-            { width: isOpen ? SIDEBAR_EXPANDED - 15 : SIDEBAR_COLLAPSED - 15 }
-          }
-        >
-          <View style={styles.HomeIcon}>
-            <LogOut color={'red'} size={20} strokeWidth={2} />
-            {isOpen && <Text style={{ color: "#FF0000" }}>LogOut</Text>}
-          </View>
-        </Pressable>
-        </View>
-      </View>
-    </Animated.View>
+      </Animated.View>
+    </>
   );
 }
 
-export default SideBar;
-
+/* STYLES */
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
     backgroundColor: '#fff',
-    elevation: 10,
-    paddingTop: 35,
+    elevation: 20,
+    zIndex: 1000,
   },
-  sidebar: {
-    padding: 10,
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  menuBtn: {
-    marginBottom: 30,
-  },
-  menuIcon: {
-    fontSize: 28,
-    color: '#fff',
-  },
-  menuItems: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  icon: {
-    fontSize: 22,
-    color: '#fff',
-    width: 30,
-    textAlign: 'center',
-  },
-  label: {
-    fontSize: 18,
-    color: '#fff',
-    marginLeft: 10,
-  },
-  buttonContainer: {
-    // borderRadius: 12,
-    overflow: 'hidden',
+  overlay: { backgroundColor: '#000' },
+  sidebar: { flex: 1, padding: 16 },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  logo: {
     width: 40,
-  },
-  gradientIcon: {
-    paddingVertical: 14,
-    borderRadius: 50,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  text: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 9,
-  },
-  homeIcon: {
-    marginTop: 35,
-  },
-  addIcon: {
-    overflow: 'hidden',
-  },
-  gradientAddIcon: {
-    paddingVertical: 14,
-    borderRadius: 15,
-    alignItems: 'center',
+  logoText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
+  title: { fontSize: 18, fontWeight: '600', color: '#000' },
+  divider: { height: 1, backgroundColor: '#e0e0e0', marginVertical: 16 },
+  menu: { gap: 12 },
+  newChatBtn: { marginVertical: 4 },
+  newChatGradient: {
     flexDirection: 'row',
-    paddingLeft: 10,
-    paddingRight: 10,
-    gap: 20,
-  },
-  HomeIcon: {
-    borderRadius: 15,
     alignItems: 'center',
-    flexDirection: 'row',
-    paddingLeft: 10,
-    paddingRight: 10,
-    gap: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    gap: 12,
   },
+  newChatText: { color: '#fff', fontWeight: '600' },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 44,
+  },
+  searchIcon: { marginRight: 8 },
+  searchInput: { flex: 1, fontSize: 16, color: '#000' },
+  chatList: { flex: 1 },
+  chatItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  activeChat: { backgroundColor: '#f0f0f0', borderWidth: 1, borderColor: '#000' },
+  chatContent: { flex: 1, marginRight: 8 },
+  chatTitle: { fontSize: 16, fontWeight: '600', color: '#000' },
+  chatPreview: { fontSize: 14, color: '#666', marginTop: 2 },
+  chatTime: { fontSize: 12, color: '#999' },
+  noResults: { textAlign: 'center', color: '#999', marginTop: 20 },
+  bottom: { gap: 16, paddingTop: 8 },
+  bottomItem: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8 },
+  avatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#ddd',
+    borderWidth: 1,
+    borderColor: '#000',
+  },
+  bottomText: { fontSize: 16, color: '#666' },
 });

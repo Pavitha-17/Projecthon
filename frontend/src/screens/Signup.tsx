@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Pressable, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  Pressable,
+  TouchableOpacity,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+} from 'react-native';
 import Input from '../components/Input';
 import { Lock, Mail, User, Eye, EyeOff } from 'lucide-react-native';
 import Button from '../components/Button';
@@ -7,6 +17,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
+
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 function Signup() {
@@ -58,100 +69,146 @@ function Signup() {
     setConfirmPassword(text);
     setConfirmPasswordError(validateConfirmPassword(text));
   };
+
   return (
-    <View style={styles.signupContainer}>
-      <View style={styles.logoContainer}>
-        <LinearGradient
-          colors={['#00C781', '#2D9CFF']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.gradient}
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
         >
-          <Text style={styles.gradienttext}>AI</Text>
-        </LinearGradient>
-        <View style={styles.logoText}>
-          <Text style={styles.create}>Create Account</Text>
-          <Text>Join us and start your AI conversations</Text>
-        </View>
-      </View>
-      <View style={styles.upcontainer}>
-        <View style={styles.textContainer}>
-          <Text style={styles.signup}>Sign Up</Text>
-          {/* <Text>Enter Your credentials to access your account</Text> */}
-        </View>
-        <View style={styles.inputContainer}>
-          <Input
-            placeholder="Enter your Name"
-            label="User Name"
-            icon={<User size={20} color="#6B7280" />}
-            value={username}
-            onChangeText={setUsername}
-          />
-          <Input
-            placeholder="Enter Your Email"
-            label="Email"
-            icon={<Mail size={20} color="#6B7280" />}
-            value={email}
-            onChangeText={handleEmailChange}
-            error={emailError}
-          />
-          <Input
-            placeholder="Create your password"
-            label="Password"
-            password={!showPassword}
-            icon={<Lock size={20} color="#6B7280" />}
-            rightIcon={
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                {showPassword ? <EyeOff size={20} color="#6B7280" /> : <Eye size={20} color="#6B7280" />}
-              </TouchableOpacity>
-            }
-            value={password}
-            onChangeText={handlePasswordChange}
-            error={passwordError}
-          />
-          <Input
-            placeholder="Confirm your password"
-            label="Confirm Password"
-            password={!showConfirmPassword}
-            icon={<Lock size={20} color="#6B7280" />}
-            rightIcon={
-              <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                {showConfirmPassword ? <EyeOff size={20} color="#6B7280" /> : <Eye size={20} color="#6B7280" />}
-              </TouchableOpacity>
-            }
-            value={confirmPassword}
-            onChangeText={handleConfirmPasswordChange}
-            error={confirmPasswordError}
-          />
-        </View>
-        <Button left='#02ac70ff' right='#1994ffff' left1='#00C781' right1='#2D9CFF' text={'Sign Up'} onPress={() =>navigation.navigate('Home')}/>
-      </View>
-                <View style={styles.login}>
-                  <Text>Have an account?</Text>
-                  <Pressable
-                    onPressIn={() => setIsPressedlogin(true)}
-                    onPressOut={() => setIsPressedlogin(false)}
-                    onPress={() => navigation.navigate('Login')}
-                  >
-                    <Text
-                      style={{
-                        color: isPressedlogin ? '#136be3' : '#288df8',
-                      }}
+          <View style={styles.signupContainer}>
+            {/* ---------- LOGO ---------- */}
+            <View style={styles.logoContainer}>
+              <LinearGradient
+                colors={['#00C781', '#2D9CFF']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.gradient}
+              >
+                <Text style={styles.gradienttext}>AI</Text>
+              </LinearGradient>
+
+              <View style={styles.logoText}>
+                <Text style={styles.create}>Create Account</Text>
+                <Text style={styles.subtitle}>Join us and start your AI conversations</Text>
+              </View>
+            </View>
+
+            {/* ---------- FORM CARD ---------- */}
+            <View style={styles.upcontainer}>
+              <View style={styles.textContainer}>
+                <Text style={styles.signup}>Sign Up</Text>
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Input
+                  placeholder="Enter your Name"
+                  label="User Name"
+                  icon={<User size={20} color="#6B7280" />}
+                  value={username}
+                  onChangeText={setUsername}
+                />
+                <Input
+                  placeholder="Enter Your Email"
+                  label="Email"
+                  icon={<Mail size={20} color="#6B7280" />}
+                  value={email}
+                  onChangeText={handleEmailChange}
+                  error={emailError}
+                />
+                <Input
+                  placeholder="Create your password"
+                  label="Password"
+                  password={!showPassword}
+                  icon={<Lock size={20} color="#6B7280" />}
+                  rightIcon={
+                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                      {showPassword ? (
+                        <EyeOff size={20} color="#6B7280" />
+                      ) : (
+                        <Eye size={20} color="#6B7280" />
+                      )}
+                    </TouchableOpacity>
+                  }
+                  value={password}
+                  onChangeText={handlePasswordChange}
+                  error={passwordError}
+                />
+                <Input
+                  placeholder="Confirm your password"
+                  label="Confirm Password"
+                  password={!showConfirmPassword}
+                  icon={<Lock size={20} color="#6B7280" />}
+                  rightIcon={
+                    <TouchableOpacity
+                      onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                     >
-                      Log In
-                    </Text>
-                  </Pressable>
-                  </View>
-    </View>
+                      {showConfirmPassword ? (
+                        <EyeOff size={20} color="#6B7280" />
+                      ) : (
+                        <Eye size={20} color="#6B7280" />
+                      )}
+                    </TouchableOpacity>
+                  }
+                  value={confirmPassword}
+                  onChangeText={handleConfirmPasswordChange}
+                  error={confirmPasswordError}
+                />
+              </View>
+
+              <Button
+                left="#02ac70ff"
+                right="#1994ffff"
+                left1="#00C781"
+                right1="#2D9CFF"
+                text={'Sign Up'}
+                onPress={() => navigation.navigate('Home')}
+              />
+            </View>
+
+            {/* ---------- FOOTER ---------- */}
+            <View style={styles.login}>
+              <Text style={styles.footerText}>Have an account? </Text>
+              <Pressable
+                onPressIn={() => setIsPressedlogin(true)}
+                onPressOut={() => setIsPressedlogin(false)}
+                onPress={() => navigation.navigate('Login')}
+              >
+                <Text
+                  style={{
+                    color: isPressedlogin ? '#136be3' : '#288df8',
+                    fontWeight: '600',
+                  }}
+                >
+                  Log In
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 export default Signup;
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    backgroundColor: '#ebfff8ff',
+    paddingVertical: 20,
+  },
   signupContainer: {
     flex: 1,
-    backgroundColor: '#ebfff8ff',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 30,
@@ -182,7 +239,6 @@ const styles = StyleSheet.create({
   },
   upcontainer: {
     width: '90%',
-    // padding:10,
     justifyContent: 'center',
     alignItems: 'center',
     gap: 20,
@@ -201,7 +257,7 @@ const styles = StyleSheet.create({
   },
   signup: {
     fontSize: 22,
-    fontWeight: 400,
+    fontWeight: '500',
   },
   inputContainer: {
     width: '100%',
@@ -211,5 +267,15 @@ const styles = StyleSheet.create({
   },
   login: {
     flexDirection: 'row',
+    alignItems: 'center',
+  },
+  subtitle: {
+    color: '#6B7280',
+    fontSize: 14,
+  },footerText: {
+    color: '#6B7280',
+  },safeArea: {
+    flex: 1,
+    backgroundColor: '#ebfff8ff',
   },
 });
