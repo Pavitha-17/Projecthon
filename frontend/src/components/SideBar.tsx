@@ -251,7 +251,7 @@ export default function SideBar({
 
           {/* BOTTOM */}
           <View style={styles.bottom}>
-            <Pressable style={styles.bottomItem}>
+            <Pressable style={styles.bottomItem} onPress={() => navigation.navigate('Settings')}>
               <View style={styles.avatar} />
               <Text style={styles.bottomText}>Profile</Text>
             </Pressable>
