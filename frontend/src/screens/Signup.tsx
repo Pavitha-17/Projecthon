@@ -70,6 +70,16 @@ function Signup() {
     setConfirmPasswordError(validateConfirmPassword(text));
   };
 
+
+  const isFormValid = () => {
+    return username.trim() && 
+           email.trim() && 
+           password.trim() && 
+           confirmPassword.trim() &&
+           !emailError && 
+           !passwordError && 
+           !confirmPasswordError;
+  };
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView

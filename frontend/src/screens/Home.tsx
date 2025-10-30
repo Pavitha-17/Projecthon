@@ -12,11 +12,23 @@ import {
   ScrollView,
   Keyboard,
   StatusBar,
+  Image as RNImage,
+  ActivityIndicator,
 } from 'react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
+import axios from 'axios';
 import SideBar from '../components/SideBar';
-import { Menu, MoreVertical, Image, Send } from 'lucide-react-native';
+import { Menu, MoreVertical, Image, Send, X } from 'lucide-react-native';
 
-type Message = { text: string; sender: 'user' | 'ai'; timestamp: Date };
+type Message = {
+  text: string;
+  sender: 'user' | 'ai';
+  timestamp: Date;
+  image?: string;      // base64
+  mime_type?: string;
+};
+
+const API_URL = 'http://192.168.175.194:8000'; // ← YOUR PC IP
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -24,7 +36,9 @@ export default function Home() {
   const [sendPress, setSendPress] = useState(false);
   const [inputText, setInputText] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+  const [currentChatId, setCurrentChatId] = useState<string>('default');
+  const [isTyping, setIsTyping] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<any>(null);
   const scrollRef = useRef<ScrollView>(null);
 
   const scrollToBottom = () => {
@@ -32,35 +46,91 @@ export default function Home() {
   };
   useEffect(() => scrollToBottom(), [messages]);
 
-  const handleSend = () => {
-    if (!inputText.trim()) return;
+  // ──────────────────────────────────────
+  // Image picker
+  // ──────────────────────────────────────
+  const pickImage = () => {
+    launchImageLibrary(
+      { mediaType: 'photo', includeBase64: true, quality: 0.8 },
+      (response) => {
+        if (response.didCancel || response.errorCode) return;
+        const asset = response.assets?.[0];
+        if (asset?.uri && asset.base64) {
+          setSelectedImage({
+            uri: asset.uri,
+            base64: asset.base64,
+            mimeType: asset.type || 'image/jpeg',
+          });
+        }
+      }
+    );
+  };
+
+  const removeImage = () => setSelectedImage(null);
+
+  // ──────────────────────────────────────
+  // Send (non‑streaming) → /chat/
+  // ──────────────────────────────────────
+  const handleSend = async () => {
+    if (!inputText.trim() && !selectedImage) return;
+
     const userMsg: Message = {
       text: inputText.trim(),
       sender: 'user',
       timestamp: new Date(),
+      image: selectedImage?.base64,
+      mime_type: selectedImage?.mimeType,
     };
+
     setMessages((p) => [...p, userMsg]);
     setInputText('');
+    setSelectedImage(null);
+    setIsTyping(true);
 
-    // Auto‑name chat on first message
-    if (messages.length === 0 && currentChatId) {
-      // You'll call backend or update sidebar via ref later
+    const formData = new FormData();
+    formData.append('message', userMsg.text);
+    formData.append('session_id', currentChatId);
+
+    if (selectedImage) {
+      formData.append('image', {
+        uri: selectedImage.uri,
+        type: selectedImage.mimeType,
+        name: 'photo.jpg',
+      } as any);
     }
 
-    setTimeout(() => {
+    try {
+      const { data } = await axios.post(`${API_URL}/chat/`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 60000,
+      });
+
       const aiMsg: Message = {
-        text: `You said: "${userMsg.text}"`,
+        text: data.reply,
         sender: 'ai',
         timestamp: new Date(),
       };
       setMessages((p) => [...p, aiMsg]);
-    }, 800);
+    } catch (err: any) {
+      console.error('Chat error:', err);
+      const msg =
+        err.response?.status
+          ? `Server error ${err.response.status}`
+          : err.message || 'Network error';
+      setMessages((p) => [...p, { text: msg, sender: 'ai', timestamp: new Date() }]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
+  // ──────────────────────────────────────
+  // Sidebar helpers
+  // ──────────────────────────────────────
   const handleNewChat = () => {
     setMessages([]);
-    setCurrentChatId(null);
+    setCurrentChatId(`chat_${Date.now()}`);
     setInputText('');
+    setSelectedImage(null);
   };
 
   const handleSelectChat = (chat: any) => {
@@ -68,7 +138,9 @@ export default function Home() {
       chat.messages.map((m: any) => ({
         text: m.text,
         sender: m.sender,
-        timestamp: new Date(),
+        timestamp: new Date(m.timestamp),
+        image: m.image,
+        mime_type: m.mime_type,
       }))
     );
     setCurrentChatId(chat.id);
@@ -78,6 +150,9 @@ export default function Home() {
   const keyboardVerticalOffset =
     Platform.OS === 'ios' ? 0 : (StatusBar.currentHeight || 0) + 20;
 
+  // ──────────────────────────────────────
+  // Render
+  // ──────────────────────────────────────
   return (
     <SafeAreaView style={styles.container}>
       <SideBar
@@ -114,49 +189,79 @@ export default function Home() {
             keyboardShouldPersistTaps="handled"
             scrollEnabled={true}
           >
-            {messages.length === 0 ? (
+            {messages.length === 0 && !isTyping ? (
               <Text style={styles.placeholder}>Start a conversation...</Text>
             ) : (
-              messages.map((msg, i) => (
-                <View
-                  key={i}
-                  style={[
-                    styles.messageWrapper,
-                    msg.sender === 'user' ? styles.userMessage : styles.aiMessage,
-                  ]}
-                >
+              <>
+                {messages.map((msg, i) => (
                   <View
+                    key={i}
                     style={[
-                      styles.messageBubble,
-                      msg.sender === 'user' ? styles.userBubble : styles.aiBubble,
+                      styles.messageWrapper,
+                      msg.sender === 'user' ? styles.userMessage : styles.aiMessage,
                     ]}
                   >
-                    <Text
+                    <View
                       style={[
-                        styles.messageText,
-                        msg.sender === 'user' ? styles.userText : styles.aiText,
+                        styles.messageBubble,
+                        msg.sender === 'user' ? styles.userBubble : styles.aiBubble,
                       ]}
                     >
-                      {msg.text}
-                    </Text>
-                    <Text style={styles.timestamp}>
-                      {msg.timestamp.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </Text>
+                      {msg.image && (
+                        <RNImage
+                          source={{ uri: `data:${msg.mime_type};base64,${msg.image}` }}
+                          style={styles.chatImage}
+                          resizeMode="cover"
+                        />
+                      )}
+                      <Text
+                        style={[
+                          styles.messageText,
+                          msg.sender === 'user' ? styles.userText : styles.aiText,
+                        ]}
+                      >
+                        {msg.text}
+                      </Text>
+                      <Text style={styles.timestamp}>
+                        {msg.timestamp.toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </Text>
+                    </View>
                   </View>
-                </View>
-              ))
+                ))}
+
+                {/* Typing indicator (no stream) */}
+                {isTyping && (
+                  <View style={[styles.messageWrapper, styles.aiMessage]}>
+                    <View style={[styles.messageBubble, styles.aiBubble]}>
+                      <ActivityIndicator size="small" color="#000" />
+                    </View>
+                  </View>
+                )}
+              </>
             )}
             <View style={{ height: 20 }} />
           </ScrollView>
         </KeyboardAvoidingView>
 
+        {/* Image preview */}
+        {selectedImage && (
+          <View style={styles.imagePreview}>
+            <RNImage source={{ uri: selectedImage.uri }} style={styles.previewImg} />
+            <Pressable onPress={removeImage} style={styles.removeBtn}>
+              <X size={16} color="#fff" />
+            </Pressable>
+          </View>
+        )}
+
+        {/* Input bar */}
         <View style={styles.inputBar}>
           <Pressable
             onPressIn={() => setImagePress(true)}
             onPressOut={() => setImagePress(false)}
+            onPress={pickImage}
           >
             <Image size={25} color={imagePress ? '#aaa' : '#000'} />
           </Pressable>
@@ -175,14 +280,19 @@ export default function Home() {
             style={[
               styles.sendButton,
               sendPress && styles.sendButtonPressed,
-              !inputText.trim() && styles.sendButtonDisabled,
+              (!inputText.trim() && !selectedImage) && styles.sendButtonDisabled,
             ]}
             onPressIn={() => setSendPress(true)}
             onPressOut={() => setSendPress(false)}
             onPress={handleSend}
-            disabled={!inputText.trim()}
+            disabled={!inputText.trim() && !selectedImage}
           >
-            <Send size={20} color={sendPress || !inputText.trim() ? '#aaa' : '#000'} />
+            <Send
+              size={20}
+              color={
+                sendPress || (!inputText.trim() && !selectedImage) ? '#aaa' : '#000'
+              }
+            />
           </Pressable>
         </View>
       </Pressable>
@@ -190,6 +300,9 @@ export default function Home() {
   );
 }
 
+/* ──────────────────────────────────────
+   YOUR ORIGINAL STYLES (unchanged)
+   ────────────────────────────────────── */
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9f9f9' },
   mainWrapper: { flex: 1 },
@@ -241,4 +354,8 @@ const styles = StyleSheet.create({
   sendButton: { padding: 10, borderWidth: 1, borderColor: '#000', borderRadius: 10 },
   sendButtonPressed: { borderColor: '#aaa' },
   sendButtonDisabled: { borderColor: '#ddd' },
+  chatImage: { width: 200, height: 200, borderRadius: 12, marginBottom: 8 },
+  imagePreview: { flexDirection: 'row', padding: 8, backgroundColor: '#f0f0f0', alignItems: 'center' },
+  previewImg: { width: 60, height: 60, borderRadius: 8, marginRight: 8 },
+  removeBtn: { backgroundColor: '#ff4444', padding: 4, borderRadius: 12 },
 });

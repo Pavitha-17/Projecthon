@@ -1,4 +1,5 @@
 fastapi
+<<<<<<< HEAD
 uvicorn
 pymongo
 python-jose[cryptography]
@@ -6,3 +7,10 @@ passlib[bcrypt]
 python-multipart
 python-dotenv
 google-generativeai
+=======
+uvicorn[standard]
+python-multipart
+google-generativeai
+pydantic
+python-dotenv
+>>>>>>> 54e6ba309470c39fd3553995b24e430058513b1d

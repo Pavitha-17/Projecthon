@@ -53,6 +53,13 @@ function Login() {
     setPasswordError(validatePassword(text));
   };
 
+  const isFormValid = () => {
+    return email.trim() && 
+           password.trim() &&
+           !emailError && 
+           !passwordError;
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView

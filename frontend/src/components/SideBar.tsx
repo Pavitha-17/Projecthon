@@ -10,6 +10,9 @@ import {
   TextInput,
   ScrollView,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/types';
 import LinearGradient from 'react-native-linear-gradient';
 import {
   Home,
@@ -41,7 +44,7 @@ type Props = {
   onSelectChat: (chat: Chat) => void;
   currentChatId: string | null;
 };
-
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 export default function SideBar({
   isOpen,
   onClose,
@@ -51,6 +54,11 @@ export default function SideBar({
 }: Props) {
   const slideAnim = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
   const [searchText, setSearchText] = useState('');
+  const navigation = useNavigation<NavigationProp>();
+
+  const [isPressed, setIsPressed] = useState(false);
+  const [isAddPressed, setIsAddPressed] = useState(false);
+  
   const [chats, setChats] = useState<Chat[]>([
     {
       id: '1',
@@ -243,15 +251,15 @@ export default function SideBar({
 
           {/* BOTTOM */}
           <View style={styles.bottom}>
-            <Pressable style={styles.bottomItem}>
+            <Pressable style={styles.bottomItem} onPress={() => navigation.navigate('Settings')}>
               <View style={styles.avatar} />
               <Text style={styles.bottomText}>Profile</Text>
             </Pressable>
-            <Pressable style={styles.bottomItem}>
+            <Pressable style={styles.bottomItem} onPress={() => navigation.navigate('Settings')}>
               <Settings size={20} color="#666" />
               <Text style={styles.bottomText}>Settings</Text>
             </Pressable>
-            <Pressable style={styles.bottomItem}>
+            <Pressable style={styles.bottomItem} >
               <LogOut size={20} color="#FF0000" />
               <Text style={[styles.bottomText, { color: '#FF0000' }]}>Logout</Text>
             </Pressable>
